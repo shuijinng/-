@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>头条热点分类系统</title>
+
+  <!-- 引入 React 和 ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+
+  <!-- 引入 Babel 以支持 JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- 引入 GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    :root {
+      --primary: #3b82f6;
+      --primary-light: #60a5fa;
+      --primary-dark: #2563eb;
+      --secondary: #8b5cf6;
+      --secondary-light: #a78bfa;
+      --secondary-dark: #7c3aed;
+      --background: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --border: #e2e8f0;
+      --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body, html {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--background);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      overflow: hidden;
+    }
+
+    /* 背景动画效果 */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 35%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 75%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+      animation: float 20s infinite linear;
+    }
+
+    @keyframes float {
+      0% { transform: translate(0, 0); }
+      50% { transform: translate(20px, 20px); }
+      100% { transform: translate(0, 0); }
+    }
+
+    .container {
+      width: 800px;
+      max-width: 90vw;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    /* 标题容器 */
+    .title-wrapper {
+      display: flex;
+      justify-content: center;
+      position: relative;
+      margin-bottom: 0.5rem;
+    }
+
+    /* 主标题 */
+    .title {
+      font-size: 2.6rem;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      gap: 0.05em;
+      font-family: 'Microsoft YaHei', sans-serif;
+      position: relative;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .title-char {
+      opacity: 0;
+      display: inline-block;
+      transform-origin: bottom center;
+    }
+
+    /* 光扫效果 */
+    .title::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -60%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.5) 50%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      transform: skewX(-20deg);
+      animation: glowSwipe 3.5s ease-in-out infinite;
+      pointer-events: none;
+      opacity: 0.8;
+    }
+
+    @keyframes glowSwipe {
+      0% { left: -60%; }
+      50% { left: 100%; }
+      100% { left: -60%; }
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: #64748b;
+      opacity: 0;
+      font-weight: 400;
+    }
+
+    .main-content {
+      display: flex;
+      gap: 2rem;
+      width: 100%;
+    }
+
+    @media (max-width: 768px) {
+      .main-content {
+        flex-direction: column;
+      }
+    }
+
+    .card {
+      flex: 1;
+      background: var(--card-bg);
+      padding: 2rem;
+      border-radius: 1.5rem;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(4px);
+      border: 1px solid var(--border);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      border-color: var(--primary-light);
+    }
+
+    .card-header {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card-header::before {
+      content: '';
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--primary);
+      transition: background 0.3s ease;
+    }
+
+    .card-input:hover .card-header::before,
+    .card-output:hover .card-header::before {
+      background: var(--secondary);
+    }
+
+    .textarea {
+      flex: 1;
+      width: 100%;
+      min-height: 200px;
+      padding: 1rem;
+      border: 2px solid var(--border);
+      border-radius: 1rem;
+      outline: none;
+      resize: vertical;
+      font-size: 1rem;
+      color: var(--text);
+      background: white;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: inherit;
+    }
+
+    .textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .textarea::placeholder {
+      color: #94a3b8;
+      opacity: 0.8;
+    }
+
+    /* ========== 按钮基础样式 ========== */
+    /* 假设你已有类似 .button 的基础样式，这里补充增强 */
+    .button {
+      /* 保持你原有的样式 (padding, font, border-radius 等) */
+      position: relative;
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: 600;
+      color: #ffffff;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      outline: none;
+      box-shadow: 0 4px 14px rgba(102, 126, 234, 0.3);
+      overflow: hidden; /* ✅ 关键：裁剪动画条 */
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    
+    .button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    .button:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+      transform: none;
+    }
+    
+    /* ========== 动画条样式 ========== */
+    /* 这是实现“从左往右填充”的核心 */
+    .feedback-bar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%; /* 固定宽度 */
+      height: 100%;
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.1));
+      transform: scaleX(0); /* 初始：宽度缩为 0 */
+      transform-origin: left center; /* 从左边开始缩放 */
+      transition: transform 0.5s ease;
+    }
+    
+    .button:hover .feedback-bar {
+      transform: scaleX(1); /* 水平拉伸到 100% */
+    }
+    
+    /* ========== 可选：涟漪效果 (增强反馈) ========== */
+    .button::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      transition: all 0.3s ease;
+      pointer-events: none;
+      z-index: 0;
+    }
+    
+    .button:active:not(:disabled)::after {
+      width: 300px;
+      height: 300px;
+      opacity: 0;
+    }
+    
+    /* ========== 按钮文本样式 ========== */
+    /* 确保文本在动画层之上 */
+    .btn-text {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+	/* ===== 统一的加载动画类 ===== */
+	/* 用于按钮和任何需要加载指示的地方 */
+	.loading {
+	  display: inline-block;
+	  width: 16px;
+	  height: 16px;
+	  border: 2px solid #ffffff;
+	  /* 推荐使用 border-top-color: transparent 方式，更常见 */
+	  border-color: #ffffff #ffffff #ffffff transparent; /* 或者 border-top-color: transparent */
+	  border-radius: 50%;
+	  /* 使用更流畅的动画时长 */
+	  animation: spin 1s linear infinite;
+	}
+	
+	/* 如果你想保留不同的动画名称，也可以，但建议统一 */
+	@keyframes spin {
+	  0% { transform: rotate(0deg); }
+	  100% { transform: rotate(360deg); }
+	}
+	
+
+    .output {
+      flex: 1;
+      width: 100%;
+      min-height: 200px;
+      padding: 1rem;
+      border: 2px solid var(--border);
+      border-radius: 1rem;
+      overflow-y: auto;
+      font-size: 1rem;
+      color: var(--text);
+      background: white;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      white-space: pre-line;
+      line-height: 1.8;
+    }
+
+    .output.empty {
+      color: #94a3b8;
+      font-style: italic;
+    }
+
+    /* 滚动条样式 */
+    .output::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .output::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 4px;
+    }
+
+    .output::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 4px;
+    }
+
+    .output::-webkit-scrollbar-thumb:hover {
+      background: #cbd5e1;
+    }
+
+
+    /* 输入卡片类 */
+    .card-input {
+      position: relative;
+    }
+
+    /* 输出卡片类 */
+    .card-output {
+      position: relative;
+    }
+
+    /* === 优化后的简洁结果样式 (替代了复杂的进度条CSS) === */
+    .result-text {
+      font-family: 'SF Pro Text', 'Segoe UI', sans-serif;
+      line-height: 1.8;
+      color: #1f2937;
+      white-space: pre-wrap;
+    }
+
+    .result-text strong {
+      color: #059669;
+      font-weight: 600;
+    }
+
+    .result-text .model-name {
+      font-weight: 500;
+      color: #374151;
+    }
+
+    .result-text .confidence {
+      color: #6b7280;
+      font-size: 0.95em;
+    }
+
+    .result-text .final-result {
+      margin-top: 1rem;
+      font-size: 1.1em;
+      color: #059669;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <!-- React 渲染入口 -->
+  <div id="root"></div>
+
+  <!-- 使用 Babel 编译的 React 脚本 -->
+  <script type="text/babel">
+    const { useState, useRef, useEffect } = React;
+
+    const Home = () => {
+      const [input, setInput] = useState('');
+      const [output, setOutput] = useState('');
+      const [loading, setLoading] = useState(false);
+      const textareaRef = useRef(null);
+      const outputRef = useRef(null);
+
+      // 为标题字符创建 ref 数组
+      const titleRefs = Array.from("头条热点分类系统").map(() => useRef(null));
+      const subtitleRef = useRef(null);
+
+      // 标题动画
+      useEffect(() => {
+        if (typeof gsap === 'undefined') return;
+
+        const timer = setTimeout(() => {
+          // 标题逐字动画
+          gsap.fromTo(
+            titleRefs.map(r => r.current),
+            { opacity: 0, y: 40, skewY: 10 },
+            {
+              opacity: 1,
+              y: 0,
+              skewY: 0,
+              duration: 0.8,
+              stagger: 0.12,
+              ease: "back.out(1.3)",
+              overwrite: "auto"
+            }
+          );
+
+          // 副标题淡入
+          gsap.fromTo(
+            subtitleRef.current,
+            { opacity: 0, y: 15 },
+            { 
+              opacity: 1, 
+              y: 0, 
+              duration: 1, 
+              delay: 0.8,
+              ease: "power2.out" 
+            }
+          );
+        }, 300);
+
+        return () => clearTimeout(timer);
+      }, []); // 依赖项为空数组，只在组件挂载时执行
+
+      // 文本区域聚焦动画
+      useEffect(() => {
+        if (typeof gsap === 'undefined' || !textareaRef.current) return;
+
+        const el = textareaRef.current;
+        const onFocus = () => {
+          gsap.to(el, { 
+            duration: 0.3, 
+            scale: 1.02, 
+            borderColor: 'var(--primary)',
+            boxShadow: '0 0 0 3px rgba(59, 130, 246, 0.2)'
+          });
+        };
+        const onBlur = () => {
+          gsap.to(el, { 
+            duration: 0.3, 
+            scale: 1, 
+            borderColor: 'var(--border)', 
+            boxShadow: 'none' 
+          });
+        };
+
+        el.addEventListener('focus', onFocus);
+        el.addEventListener('blur', onBlur);
+
+        // 清理事件监听器
+        return () => {
+          el.removeEventListener('focus', onFocus);
+          el.removeEventListener('blur', onBlur);
+        };
+      }, []); // 依赖项为空数组，只在组件挂载时执行
+
+      // 输出打字机效果（支持换行）
+      useEffect(() => {
+        if (!output || !outputRef.current) return;
+      
+        gsap.killTweensOf(outputRef.current);
+      
+        const target = { progress: 0 };
+        const duration = Math.max(1, Math.min(3, output.length / 20));
+        const totalChars = output.length;
+      
+        gsap.to(target, {
+          progress: totalChars,
+          duration: duration,
+          ease: "power1.out",
+          onUpdate: () => {
+            const current = Math.floor(target.progress);
+            outputRef.current.textContent = output.slice(0, current);
+          },
+          onComplete: () => {
+            outputRef.current.textContent = output;
+          }
+        });
+      }, [output]); // 修复：添加 output 作为依赖项
+
+      // 提交处理 - 修改版 (打字机打完即终态)
+      const handleSubmit = async () => {
+        if (!input.trim()) {
+          setOutput('请输入一些文本。');
+          return;
+        }
+      
+        // 卡片点击反馈
+        if (typeof gsap !== 'undefined') {
+          gsap.to(".card-input", { duration: 0.2, scale: 0.98, ease: "power1.in" });
+          gsap.to(".card-output", { duration: 0.2, scale: 0.98, ease: "power1.in" });
+        }
+      
+        setLoading(true);
+        setOutput(''); // 清空之前的输出
+      
+        try {
+          const response = await fetch('http://localhost:8000/predict', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ text: input }),
+          });
+      
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`请求失败，状态码: ${response.status}\n${errorText}`);
+          }
+      
+          const data = await response.json();
+      
+          // ✅ 多模型结果处理
+          const models = [
+            { name: "随机森林", result: data.random_forest },
+            { name: "fastText", result: data.fasttext },
+            { name: "BERT", result: data.bert }
+          ];
+      
+          // ✅ 生成最终的、格式良好的纯文本（这个就是打字机打出的内容，也是最终显示的内容）
+          const modelLines = models.map(m => {
+            const category = m.result?.category || "未知";
+            const confidence = m.result?.confidence != null ? m.result.confidence : 0;
+            const confClipped = Math.max(0, Math.min(1, confidence));
+            const confPercent = (confClipped * 100).toFixed(0); // 置信度取整数，更简洁
+            return `  • ${m.name}: ${category} (${confPercent}%)`; // 使用 • 符号，更美观
+          }).join('\n');
+      
+          // ✅ 投票共识
+          const votes = models
+            .map(m => m.result?.category)
+            .filter(cat => cat && cat !== "unknown" && cat !== "未知");
+      
+          let finalCategory = "无法判断";
+          if (votes.length > 0) {
+            const voteCount = {};
+            votes.forEach(v => voteCount[v] = (voteCount[v] || 0) + 1);
+            finalCategory = Object.keys(voteCount).reduce((a, b) => 
+              voteCount[a] > voteCount[b] ? a : b
+            );
+          }
+      
+          // ✅ 核心：这个字符串就是最终要显示的内容，打字机会逐字打出它
+          const finalOutputText = `📊 多模型分类结果：
+      ${modelLines}
+      
+      🏁 最终共识: ${finalCategory}`;
+      
+          // ✅ 设置状态，触发打字机效果
+          setOutput(finalOutputText);
+      
+          // ✅ 移除：不再需要 setTimeout 来替换内容
+      
+          // 卡片弹起动画
+          if (typeof gsap !== 'undefined') {
+            gsap.to(".card-input, .card-output", {
+              scale: 1,
+              duration: 0.4,
+              ease: "back.out(1.2)",
+              delay: 0.1
+            });
+          }
+      
+        } catch (error) {
+          console.error("分类请求失败:", error);
+          const errorMsg = error.message.includes("fetch")
+            ? "无法连接到后端服务，请确保 FastAPI 已启动（http://localhost:8000）"
+            : `处理失败：${error.message}`;
+          setOutput(errorMsg); // 错误信息也通过打字机打出
+      
+          // 错误抖动动画
+          if (typeof gsap !== 'undefined') {
+            gsap.to(".card-output", {
+              x: -5,
+              duration: 0.1,
+              repeat: 3,
+              yoyo: true,
+              onComplete: () => gsap.set(".card-output", { clearProps: "x" })
+            });
+          }
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      return (
+        <div className="container">
+          <div className="header">
+            <div className="title-wrapper">
+              <h1 className="title">
+                {Array.from("头条热点分类系统").map((char, index) => (
+                  <span
+                    key={index}
+                    ref={titleRefs[index]}
+                    className="title-char"
+                  >
+                    {char}
+                  </span>
+                ))}
+              </h1>
+            </div>
+            <p ref={subtitleRef} className="subtitle">
+              基于机器学习的文本分类系统
+            </p>
+          </div>
+
+          <div className="main-content">
+            <div className="card card-input">
+              <h2 className="card-header">输入文本</h2>
+              <textarea
+                ref={textareaRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="请输入要分类的新闻标题或短文本..."
+                className="textarea"
+                disabled={loading}
+              />
+              <button
+                className="button"
+                onClick={handleSubmit}
+                disabled={loading}
+                // 👇 添加 aria-label 提升可访问性
+                aria-label={loading ? "处理中" : "开始分类"}
+              >
+                {/* 👇 按钮文本 */}
+                <span className="btn-text">
+                  {loading ? (
+                    <>
+                      <span className="loading"></span>
+                      处理中...
+                    </>
+                  ) : (
+                    "开始分类"
+                  )}
+                </span>
+          
+                {/* 👇 动画条：从左向右填充的反馈层 */}
+                <span className="feedback-bar"></span>
+              </button>
+            </div>
+          </div>
+
+            <div className="card card-output">
+              <h2 className="card-header">输出结果</h2>
+              <div
+                ref={outputRef}
+                className={`output ${!output ? 'empty' : ''}`}
+                style={{ whiteSpace: 'pre-line' }}
+              >
+                {output || '处理结果将显示在这里...'}
+              </div>
+            </div>
+          </div>
+      );
+    }
+
+    // 渲染组件
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<Home />);
+  </script>
+</body>
+</html>

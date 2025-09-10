@@ -1,0 +1,130 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  color: #333;
+}
+
+.app {
+  padding: 40px 20px;
+}
+
+.container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.title-container {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.title-word {
+  display: inline-block;
+  font-size: 3.5rem;
+  font-weight: 800;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+  margin: 0 10px;
+}
+
+.subtitle {
+  color: rgba(255,255,255,0.9);
+  font-size: 1.1rem;
+  margin-top: 15px;
+}
+
+.cards {
+  display: flex;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.card {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  overflow: hidden;
+  flex: 1;
+  min-width: 300px;
+}
+
+.card-input textarea {
+  width: 100%;
+  height: 200px;
+  padding: 20px;
+  border: none;
+  resize: none;
+  font-size: 1rem;
+  outline: none;
+}
+
+.card-input .submit-btn {
+  width: 100%;
+  padding: 15px;
+  background: #4a6cf7;
+  color: white;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.card-input .submit-btn:hover:not(:disabled) {
+  background: #3a5cf0;
+}
+
+.card-input .submit-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.output {
+  padding: 25px;
+  min-height: 200px;
+  font-family: monospace;
+  line-height: 1.8;
+}
+
+.output.empty {
+  color: #999;
+  font-style: italic;
+}
+
+/* 进度条样式 */
+.model-item {
+  margin: 15px 0;
+}
+
+.model-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  margin-bottom: 6px;
+}
+
+.progress-bar-bg {
+  height: 10px;
+  background: #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  width: 0%;
+}
+
+.final-result {
+  margin-top: 20px;
+  padding: 12px;
+  background: #f0f8ff;
+  border-left: 4px solid #4a6cf7;
+  font-weight: 600;
+}
