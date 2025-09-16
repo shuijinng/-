@@ -1,0 +1,185 @@
+/* frontend/style.css */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  width: 90%;
+  max-width: 600px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 80vh; /* 占屏幕高度 80% */
+}
+
+header {
+  text-align: center;
+  padding: 20px;
+  background: #4a90e2;
+  color: white;
+}
+
+header h1 {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+
+header p {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.chat-box {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #f9f9fb;
+  scroll-behavior: smooth;
+}
+
+/* 消息布局：支持左右对齐 */
+.message {
+  display: flex;
+  gap: 10px;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.5s forwards;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 机器人消息：靠左对齐 */
+.message.bot {
+  justify-content: flex-start;
+}
+
+/* 用户消息：靠右对齐 */
+.message.user {
+  justify-content: flex-end;
+}
+
+/* 头像样式 */
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.message.bot .avatar {
+  background: #d4edff;
+}
+
+.message.user .avatar {
+  background: #4a90e2;
+  color: white;
+}
+
+/* 气泡样式 */
+.bubble {
+  padding: 12px 18px;
+  max-width: 80%;
+  font-size: 16px;
+  line-height: 1.5;
+  word-wrap: break-word;
+  border-radius: 18px;
+  white-space: pre-wrap; /* ✅ 加上这一句 */
+}
+
+/* 机器人气泡：左侧小圆角 */
+.message.bot .bubble {
+  background: #e3f2fd;
+  color: #1a1a1a;
+  border-radius: 18px 18px 18px 4px;
+}
+
+/* 用户气泡：右侧小圆角 */
+.message.user .bubble {
+  background: #4a90e2;
+  color: white;
+  border-radius: 18px 18px 4px 18px;
+}
+
+
+/* 打字机光标闪烁效果 */
+.typing {
+  border-right: 2px solid #4a90e2;
+  animation: blink 0.6s step-end infinite;
+  white-space: pre-wrap;   /* ✅ 允许换行，保留空格 */
+  overflow: hidden;
+  min-height: 1.5em;       /* 防止高度塌陷 */
+}
+
+@keyframes blink {
+  from, to {
+    border-color: transparent;
+  }
+  50% {
+    border-color: #4a90e2;
+  }
+}
+
+/* 输入区域 */
+.input-area {
+  display: flex;
+  padding: 15px;
+  background: white;
+  border-top: 1px solid #eee;
+}
+
+#user-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  border-radius: 25px;
+  outline: none;
+  font-size: 16px;
+  transition: border 0.3s;
+}
+
+#user-input:focus {
+  border-color: #4a90e2;
+}
+
+#send-btn {
+  margin-left: 10px;
+  padding: 0 20px;
+  background: #4a90e2;
+  color: white;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.3s;
+}
+
+#send-btn:hover {
+  background: #357abd;
+}

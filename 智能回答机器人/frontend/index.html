@@ -1,0 +1,32 @@
+<!-- frontend/index.html -->
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🌍 旅行助手</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>✈️ 智能旅行助手</h1>
+      <p>告诉我你的旅行计划，我来帮你规划</p>
+    </header>
+
+    <div id="chat-box" class="chat-box">
+      <div class="message bot">
+        <span class="avatar">🤖</span>
+        <div class="bubble">你好！我是你的旅行助手，想去哪里玩呢？</div>
+      </div>
+    </div>
+
+    <div class="input-area">
+      <input type="text" id="user-input" placeholder="例如：东京春天有什么好玩的？" />
+      <button id="send-btn">发送</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
